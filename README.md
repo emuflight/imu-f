@@ -1,15 +1,22 @@
 # IMU-F
+
 IMU-F flight controller project
 
-# setup
-clone the project
+## Development
+
+## Build
+
+ * clone the project
+ * install [toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)
+ * ensure `gnu-rm` executables come first in `PATH`
+ * call `make.py`
+
+## Build on OSX
 
 ```bash
-brew install openocd python
-curl -o ~/Downloads/gcc_arm-6-2017-q1.tar.bz2 https://developer.arm.com/-/media/Files/downloads/gnu-rm/6_1-2017q1/gcc-arm-none-eabi-6-2017-q1-update-mac.tar.bz2 
-tar -zxvf ~/Downloads/gcc_arm-6-2017-q1.tar.bz2
-sudo mkdir /usr/local/gcc_arm-6-2017-q1
-sudo mv ~/Downloads/gcc_arm-6-2017-q1 /usr/local/gcc_arm-6-2017-q1
-sudo ln -s /usr/local/gcc_arm-6-2017-q1 /usr/local/gcc_arm
-echo 'export PATH="$PATH:/usr/local/gcc_arm/bin"' >> ~/.bash_profile 
+brew install direnv openocd python
+curl -OL "https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2"
+tar xzf gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2
+direnv allow
+./make.py -T=F3
 ```
