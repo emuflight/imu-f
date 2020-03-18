@@ -378,9 +378,6 @@ class CommandRunnerThread(threading.Thread):
 
             try:
                 self.run_command()
-            except RuntimeError:
-                print("**")
-                self.stop_command
             finally:
                 with locker:
                     threadRunning.remove(self)
@@ -424,10 +421,6 @@ class CommandRunnerThread(threading.Thread):
                 print('!!', stderr_value.decode())
 
             sys.stdout.flush()
-
-        if(self.proc.returncode > 0):
-            print("ERROR", self.proc.returncode)
-            self.stop_command
 
         if self.queue:
             self.queue.put(self.proc.returncode)
@@ -616,6 +609,8 @@ def main():
     # all threads are created, start them up
     for thread in threads:
         thread.start()
+
+    returncode = 0
 
     while len(threadRunning) > 0:
         try:
