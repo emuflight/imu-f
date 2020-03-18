@@ -3,20 +3,18 @@
 #Cubic spline fitter
 
 from __future__ import print_function
-
-import re
-import sys
-import threading
-import subprocess
+from collections import namedtuple
+import argparse
+import ctypes as c
 import glob
-import sys
 import ntpath
 import os
 import platform
-import argparse
-import ctypes as c
-
-from collections import namedtuple
+import re
+import subprocess
+import sys
+import sys
+import threading
 
 try:
     # Python 3 name
@@ -69,7 +67,7 @@ LIBRARY_PATH = os.path.join(this_dir, "vendor")
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('-C', "--clean", help="clean up output folder", action='store_true')
 parser.add_argument('-D', "--debug", help="build debug target", action='store_true')
-parser.add_argument('-j', "--threads", help="number of threads to run", default=4, type=int)
+parser.add_argument('-j', "--threads", help="number of threads to run", default=1, type=int)
 parser.add_argument('-v', "--verbose", help="print compiler calls", action='store_true')
 parser.add_argument("-T", "--target", help="target controller to build", default="", nargs='*')
 args = parser.parse_args()
@@ -156,7 +154,7 @@ def configure_target(TARGET):
 
     else:
         print("ERROR - Select a target")
-        exit(1)
+        sys.exit(1)
 
     if (args.debug):
         os.system("PID=\"$(ps -elf | grep  openocd | grep -v 'grep' | sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | cut -d ' ' -f 3)\";kill $PID")
@@ -223,7 +221,7 @@ def configure_target(TARGET):
         SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/ComplexMathFunctions/arm_cmplx_mag_f32.c")
     else:
         print("ERROR - Unknown Project")
-        exit(1)
+        sys.exit(2)
 
 
 
@@ -380,6 +378,9 @@ class CommandRunnerThread(threading.Thread):
 
             try:
                 self.run_command()
+            except RuntimeError:
+                print("**")
+                self.stop_command
             finally:
                 with locker:
                     threadRunning.remove(self)
@@ -420,9 +421,13 @@ class CommandRunnerThread(threading.Thread):
             if stdout_value:
                 print(stdout_value.decode())
             if stderr_value:
-                print(stderr_value.decode())
+                print('!!', stderr_value.decode())
 
             sys.stdout.flush()
+
+        if(self.proc.returncode > 0):
+            print("ERROR", self.proc.returncode)
+            self.stop_command
 
         if self.queue:
             self.queue.put(self.proc.returncode)
@@ -440,7 +445,6 @@ class CommandRunnerThread(threading.Thread):
                 pass
 
         self.stop_event.set()
-
 
     def stopped(self):
         return self.stop_event.isSet()
@@ -618,6 +622,7 @@ def main():
             returncode = thread_queue.get(timeout=5)
         except queue.Empty:
             continue
+
         if returncode > 0:
             with locker:
                 isStop = True
@@ -628,7 +633,8 @@ def main():
     for thread in threads:
         thread.join()
 
-    exit(0)
+    # exit with last returncode
+    sys.exit(returncode)
 
 if __name__ == "__main__":
     main()
