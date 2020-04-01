@@ -5,10 +5,12 @@
 
 #define MAX_WINDOW_SIZE 1024
 #define DEF_WINDOW_SIZE 32
-#define MIN_WINDOW_SIZE 6
+#define MIN_WINDOW_SIZE 3
 
 // #define VARIANCE_SCALE 0.001
 #define VARIANCE_SCALE 0.67f
+
+#define DT 1 / 32000
 
 typedef struct kalman
 {
@@ -18,7 +20,9 @@ typedef struct kalman
     float k;     //kalman gain
     float x;     //state
     float lastX; //previous state
-    float e;
+    float e;     //dynamic q multiplier
+    float s;     //sharpness
+    float acc;   //acceleration
 } kalman_t;
 
 typedef struct variance
@@ -46,9 +50,14 @@ typedef struct variance
     float xSumVar;
     float ySumVar;
     float zSumVar;
+
     float xySumCoVar;
     float xzSumCoVar;
     float yzSumCoVar;
+
+    float xyCorrelation;
+    float xzCorrelation;
+    float yzCorrelation;
 
     float inverseN;
 } variance_t;
