@@ -9,8 +9,6 @@ kalman_t   kalmanFilterStateRate[3];
 void init_kalman(kalman_t *filter, float q)
 {
     memset(filter, 0, sizeof(kalman_t));
-    memset((uint32_t *)&setPointInt, 0, sizeof(axisDataInt_t));
-    memset((uint32_t *)&setPoint, 0, sizeof(axisData_t));
     filter->q = q * 0.001f;      //add multiplier to make tuning easier
     filter->r = 88.0f;           //seeding R at 88.0f
     filter->p = 30.0f;           //seeding P at 30.0f
@@ -18,7 +16,6 @@ void init_kalman(kalman_t *filter, float q)
     filter->lastX = 0.0f;        //set intial value, can be zero if unknown
     filter->e = 1.0f;            //dynamic q multiplier
     filter->s = filterConfig.sharpness / 250.0f; //error boost to the q multiplier
-    filter->acc = 0.0f;          //set intial value, can be zero if unknown
 }
 
 void kalman_init(void)
@@ -28,16 +25,16 @@ void kalman_init(void)
     init_kalman(&kalmanFilterStateRate[ROLL], filterConfig.roll_q);
     init_kalman(&kalmanFilterStateRate[PITCH], filterConfig.pitch_q);
     init_kalman(&kalmanFilterStateRate[YAW], filterConfig.yaw_q);
-    varStruct.inverseN = 1.0f/filterConfig.w;
+    varStruct.inverseN = 1.0f / filterConfig.w;
 }
 
 #pragma GCC push_options
 #pragma GCC optimize("O3")
 void update_kalman_covariance(volatile axisData_t *gyroRateData)
 {
-     varStruct.xWindow[ varStruct.windex] = gyroRateData->x - setPoint.x;
-     varStruct.yWindow[ varStruct.windex] = gyroRateData->y - setPoint.y;
-     varStruct.zWindow[ varStruct.windex] = gyroRateData->z - setPoint.z;
+     varStruct.xWindow[ varStruct.windex] = gyroRateData->x;
+     varStruct.yWindow[ varStruct.windex] = gyroRateData->y;
+     varStruct.zWindow[ varStruct.windex] = gyroRateData->z;
 
      varStruct.xSumMean +=  varStruct.xWindow[ varStruct.windex];
      varStruct.ySumMean +=  varStruct.yWindow[ varStruct.windex];
@@ -75,22 +72,18 @@ void update_kalman_covariance(volatile axisData_t *gyroRateData)
      varStruct.yzCoVar =  ABS(varStruct.yzSumCoVar *  varStruct.inverseN - ( varStruct.yMean *  varStruct.zMean));
 
     float squirt;
-    arm_sqrt_f32(varStruct.xVar * varStruct.yVar, &squirt);
-    varStruct.xyCorrelation = varStruct.xyCoVar / squirt;
-    arm_sqrt_f32(varStruct.xVar * varStruct.zVar, &squirt);
-    varStruct.xzCorrelation = varStruct.xzCoVar / squirt;
-    arm_sqrt_f32(varStruct.yVar * varStruct.zVar, &squirt);
-    varStruct.yzCorrelation = varStruct.yzCoVar / squirt;
-
-    kalmanFilterStateRate[ROLL].r = ABS((varStruct.xMean * ((varStruct.xyCorrelation + varStruct.xzCorrelation) * VARIANCE_SCALE)));
-    kalmanFilterStateRate[PITCH].r = ABS((varStruct.yMean * ((varStruct.xyCorrelation + varStruct.yzCorrelation) * VARIANCE_SCALE)));
-    kalmanFilterStateRate[YAW].r = ABS((varStruct.zMean * ((varStruct.yzCorrelation + varStruct.xzCorrelation) * VARIANCE_SCALE)));
+    arm_sqrt_f32(varStruct.xVar +  varStruct.xyCoVar +  varStruct.xzCoVar, &squirt);
+    kalmanFilterStateRate[ROLL].r = squirt * VARIANCE_SCALE;
+    arm_sqrt_f32(varStruct.yVar +  varStruct.xyCoVar +  varStruct.yzCoVar, &squirt);
+    kalmanFilterStateRate[PITCH].r = squirt * VARIANCE_SCALE;
+    arm_sqrt_f32(varStruct.zVar +  varStruct.yzCoVar +  varStruct.xzCoVar, &squirt);
+    kalmanFilterStateRate[YAW].r = squirt * VARIANCE_SCALE;
 }
 
 inline float kalman_process(kalman_t* kalmanState, volatile float input, volatile float target) {
     float targetAbs = ABS(target);
     //project the state ahead using acceleration
-    kalmanState->x = kalmanState->lastX + kalmanState->acc;
+    kalmanState->x += (kalmanState->x - kalmanState->lastX);
 
     //figure out how much to boost or reduce our error in the estimate based on setpoint target.
     //this should be close to 0 as we approach the sepoint and really high the futher away we are from the setpoint.
@@ -115,9 +108,6 @@ inline float kalman_process(kalman_t* kalmanState, volatile float input, volatil
     kalmanState->k = kalmanState->p / (kalmanState->p + kalmanState->r);
     kalmanState->x += kalmanState->k * (input - kalmanState->x);
     kalmanState->p = (1.0f - kalmanState->k) * kalmanState->p;
-
-    kalmanState->acc = (kalmanState->x - kalmanState->lastX) * DT;
-    kalmanState->lastX = kalmanState->x;
 
     return kalmanState->x;
 }

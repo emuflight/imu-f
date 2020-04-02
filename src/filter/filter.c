@@ -106,32 +106,37 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 	filteredData->rateData.y = biquad_update(filteredData->rateData.y, &(lpfFilterStateRate.y));
 	filteredData->rateData.z = biquad_update(filteredData->rateData.z, &(lpfFilterStateRate.z));
 
-		if (filteredData->rateData.x != 0.0f)
+// calculate the error
+	float errorMultiplierX = ABS(setPoint.x - filteredData->rateData.x) * sharpness;
+	float errorMultiplierY = ABS(setPoint.y - filteredData->rateData.y) * sharpness;
+	float errorMultiplierZ = ABS(setPoint.z - filteredData->rateData.z) * sharpness;
+
+// give a boost to the setpoint, used to caluclate the filter cutoff, based on the error and setpoint/gyrodata
+	errorMultiplierX = CONSTRAIN(errorMultiplierX * ABS(1.0f - (setPoint.x / filteredData->rateData.x)) + 1.0f, 1.0f, 50.0f);
+	errorMultiplierY = CONSTRAIN(errorMultiplierY * ABS(1.0f - (setPoint.y / filteredData->rateData.y)) + 1.0f, 1.0f, 50.0f);
+	errorMultiplierZ = CONSTRAIN(errorMultiplierZ * ABS(1.0f - (setPoint.z / filteredData->rateData.z)) + 1.0f, 1.0f, 50.0f);
+
+
+	if (setPointNew)
+	{
+		setPointNew = 0;
+		if (setPoint.x != 0.0f && oldSetPoint.x != setPoint.x)
 		{
-			float setPointXABS = ABS(setPoint.x);
-			float errorMultiplierX = ABS(setPoint.x - filteredData->rateData.x) * sharpness;
-			errorMultiplierX = CONSTRAIN(errorMultiplierX * ABS(1.0f - (setPoint.x / filteredData->rateData.x)) + 1.0f, 1.0f, 50.0f);
-			filterConfig.roll_lpf_hz = CONSTRAIN(10.0f * ABS(1.0f - (((setPointXABS + 1.0f) * errorMultiplierX) / ABS(filteredData->rateData.x))), 10.0f, 500.0f);
+			filterConfig.roll_lpf_hz = CONSTRAIN(10.0f * ABS(1.0f - ((setPoint.x * errorMultiplierX) / filteredData->rateData.x)), 10.0f, 500.0f);
 			filter_biquad_init(filterConfig.roll_lpf_hz, &(lpfFilterStateRate.x));
 		}
-		if (filteredData->rateData.y != 0.0f)
+		if (setPoint.y != 0.0f && oldSetPoint.y != setPoint.y)
 		{
-			float setPointYABS = ABS(setPoint.y);
-			float errorMultiplierY = ABS(setPoint.y - filteredData->rateData.y) * sharpness;
-			errorMultiplierY = CONSTRAIN(errorMultiplierY * ABS(1.0f - (setPoint.y / filteredData->rateData.y)) + 1.0f, 1.0f, 50.0f);
-			filterConfig.pitch_lpf_hz = CONSTRAIN(10.0f * ABS(1.0f - (((setPointYABS + 1.0f) * errorMultiplierY) / ABS(filteredData->rateData.y))), 10.0f, 500.0f);
+			filterConfig.pitch_lpf_hz = CONSTRAIN(10.0f * ABS(1.0f - ((setPoint.y * errorMultiplierY) / filteredData->rateData.y)), 10.0f, 500.0f);
 			filter_biquad_init(filterConfig.pitch_lpf_hz, &(lpfFilterStateRate.y));
 		}
-		if (filteredData->rateData.z != 0.0f)
+		if (setPoint.z != 0.0f && oldSetPoint.z != setPoint.z)
 		{
-			float setPointZABS = ABS(setPoint.z);
-			float errorMultiplierZ = ABS(setPoint.z - filteredData->rateData.z) * sharpness;
-			errorMultiplierZ = CONSTRAIN(errorMultiplierZ * ABS(1.0f - (setPoint.z / filteredData->rateData.z)) + 1.0f, 1.0f, 50.0f);
-			filterConfig.yaw_lpf_hz = CONSTRAIN(10.0f * ABS(1.0f - (((setPointZABS + 1.0f) * errorMultiplierZ) / ABS(filteredData->rateData.z))), 10.0f, 500.0f);
+			filterConfig.yaw_lpf_hz = CONSTRAIN(10.0f * ABS(1.0f - ((setPoint.z * errorMultiplierZ) / filteredData->rateData.z)), 10.0f, 500.0f);
 			filter_biquad_init(filterConfig.yaw_lpf_hz, &(lpfFilterStateRate.z));
 		}
 		memcpy((uint32_t *)&oldSetPoint, (uint32_t *)&setPoint, sizeof(axisData_t));
-
+	}
 	//no need to filter ACC is used in quaternions
 	filteredData->accData.x = gyroAccData->x;
 	filteredData->accData.y = gyroAccData->y;
