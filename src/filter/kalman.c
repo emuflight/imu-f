@@ -29,35 +29,35 @@ void kalman_init(void)
 #pragma GCC optimize("O3")
 void update_kalman_covariance(volatile axisData_t *gyroRateData)
 {
-     varStruct.xWindow[ varStruct.windex] = gyroRateData->x;
-     varStruct.yWindow[ varStruct.windex] = gyroRateData->y;
-     varStruct.zWindow[ varStruct.windex] = gyroRateData->z;
+    varStruct.xWindow[ varStruct.windex] = gyroRateData->x;
+    varStruct.yWindow[ varStruct.windex] = gyroRateData->y;
+    varStruct.zWindow[ varStruct.windex] = gyroRateData->z;
 
-     varStruct.xSumMean +=  varStruct.xWindow[ varStruct.windex];
-     varStruct.ySumMean +=  varStruct.yWindow[ varStruct.windex];
-     varStruct.zSumMean +=  varStruct.zWindow[ varStruct.windex];
-     varStruct.xSumVar =  varStruct.xSumVar + ( varStruct.xWindow[ varStruct.windex] *  varStruct.xWindow[ varStruct.windex]);
-     varStruct.ySumVar =  varStruct.ySumVar + ( varStruct.yWindow[ varStruct.windex] *  varStruct.yWindow[ varStruct.windex]);
-     varStruct.zSumVar =  varStruct.zSumVar + ( varStruct.zWindow[ varStruct.windex] *  varStruct.zWindow[ varStruct.windex]);
-     varStruct.windex++;
+    varStruct.xSumMean +=  varStruct.xWindow[ varStruct.windex];
+    varStruct.ySumMean +=  varStruct.yWindow[ varStruct.windex];
+    varStruct.zSumMean +=  varStruct.zWindow[ varStruct.windex];
+    varStruct.xSumVar =  varStruct.xSumVar + ( varStruct.xWindow[ varStruct.windex] *  varStruct.xWindow[ varStruct.windex]);
+    varStruct.ySumVar =  varStruct.ySumVar + ( varStruct.yWindow[ varStruct.windex] *  varStruct.yWindow[ varStruct.windex]);
+    varStruct.zSumVar =  varStruct.zSumVar + ( varStruct.zWindow[ varStruct.windex] *  varStruct.zWindow[ varStruct.windex]);
+    varStruct.windex++;
     if ( varStruct.windex >= filterConfig.w)
     {
          varStruct.windex = 0;
     }
-     varStruct.xSumMean -=  varStruct.xWindow[ varStruct.windex];
-     varStruct.ySumMean -=  varStruct.yWindow[ varStruct.windex];
-     varStruct.zSumMean -=  varStruct.zWindow[ varStruct.windex];
-     varStruct.xSumVar =  varStruct.xSumVar - ( varStruct.xWindow[ varStruct.windex] *  varStruct.xWindow[ varStruct.windex]);
-     varStruct.ySumVar =  varStruct.ySumVar - ( varStruct.yWindow[ varStruct.windex] *  varStruct.yWindow[ varStruct.windex]);
-     varStruct.zSumVar =  varStruct.zSumVar - ( varStruct.zWindow[ varStruct.windex] *  varStruct.zWindow[ varStruct.windex]);
+    varStruct.xSumMean -=  varStruct.xWindow[ varStruct.windex];
+    varStruct.ySumMean -=  varStruct.yWindow[ varStruct.windex];
+    varStruct.zSumMean -=  varStruct.zWindow[ varStruct.windex];
+    varStruct.xSumVar =  varStruct.xSumVar - ( varStruct.xWindow[ varStruct.windex] *  varStruct.xWindow[ varStruct.windex]);
+    varStruct.ySumVar =  varStruct.ySumVar - ( varStruct.yWindow[ varStruct.windex] *  varStruct.yWindow[ varStruct.windex]);
+    varStruct.zSumVar =  varStruct.zSumVar - ( varStruct.zWindow[ varStruct.windex] *  varStruct.zWindow[ varStruct.windex]);
 
-     varStruct.xMean =  varStruct.xSumMean *  varStruct.inverseN;
-     varStruct.yMean =  varStruct.ySumMean *  varStruct.inverseN;
-     varStruct.zMean =  varStruct.zSumMean *  varStruct.inverseN;
+    varStruct.xMean =  varStruct.xSumMean *  varStruct.inverseN;
+    varStruct.yMean =  varStruct.ySumMean *  varStruct.inverseN;
+    varStruct.zMean =  varStruct.zSumMean *  varStruct.inverseN;
 
-     varStruct.xVar =  ABS(varStruct.xSumVar *  varStruct.inverseN - ( varStruct.xMean *  varStruct.xMean));
-     varStruct.yVar =  ABS(varStruct.ySumVar *  varStruct.inverseN - ( varStruct.yMean *  varStruct.yMean));
-     varStruct.zVar =  ABS(varStruct.zSumVar *  varStruct.inverseN - ( varStruct.zMean *  varStruct.zMean));
+    varStruct.xVar =  ABS(varStruct.xSumVar *  varStruct.inverseN - ( varStruct.xMean *  varStruct.xMean));
+    varStruct.yVar =  ABS(varStruct.ySumVar *  varStruct.inverseN - ( varStruct.yMean *  varStruct.yMean));
+    varStruct.zVar =  ABS(varStruct.zSumVar *  varStruct.inverseN - ( varStruct.zMean *  varStruct.zMean));
 
     float squirt;
     arm_sqrt_f32(varStruct.xVar, &squirt);
@@ -82,8 +82,6 @@ inline float kalman_process(kalman_t* kalmanState, volatile float input, volatil
     } else {
         kalmanState->e = 1.0f;
     }
-
-    //kalmanState->e = ABS((target - input) * 3) + ABS(input/4);
 
     //prediction update
     kalmanState->p = kalmanState->p + (kalmanState->q * kalmanState->e);
