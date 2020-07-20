@@ -58,7 +58,7 @@ void allow_filter_init(void)
 
 void ptnFilter_init(float freq, ptnFilter_axis_t *filterState)
 {
-	ptnFilterInit(filterState, 1, freq);
+	ptnFilterInit(filterState, 3, freq);
 }
 
 void filter_init(void)
@@ -124,17 +124,17 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 		if (setPoint.x != 0.0f && oldSetPoint.x != setPoint.x)
 		{
 			filterConfig.roll_lpf_hz = CONSTRAIN((float)filterConfig.i_roll_lpf_hz * ABS(1.0f - ((setPoint.x * errorMultiplierX) / filteredData->rateData.x)), 10.0f, 500.0f);
-			ptnFilterUpdate(filterConfig.roll_lpf_hz, &(lpfFilterStateRate.x), 1.0f);
+			ptnFilterUpdate(filterConfig.roll_lpf_hz, &(lpfFilterStateRate.x), 1.961459177f);
 		}
 		if (setPoint.y != 0.0f && oldSetPoint.y != setPoint.y)
 		{
 			filterConfig.pitch_lpf_hz = CONSTRAIN((float)filterConfig.i_pitch_lpf_hz * ABS(1.0f - ((setPoint.y * errorMultiplierY) / filteredData->rateData.y)), 10.0f, 500.0f);
-			ptnFilterUpdate(filterConfig.pitch_lpf_hz, &(lpfFilterStateRate.y), 1.0f);
+			ptnFilterUpdate(filterConfig.pitch_lpf_hz, &(lpfFilterStateRate.y), 1.961459177f);
 		}
 		if (setPoint.z != 0.0f && oldSetPoint.z != setPoint.z)
 		{
 			filterConfig.yaw_lpf_hz = CONSTRAIN((float)filterConfig.i_yaw_lpf_hz * ABS(1.0f - ((setPoint.z * errorMultiplierZ) / filteredData->rateData.z)), 10.0f, 500.0f);
-			ptnFilterUpdate(filterConfig.yaw_lpf_hz, &(lpfFilterStateRate.z), 1.0f);
+			ptnFilterUpdate(filterConfig.yaw_lpf_hz, &(lpfFilterStateRate.z), 1.961459177f);
 		}
 		memcpy((uint32_t *)&oldSetPoint, (uint32_t *)&setPoint, sizeof(axisData_t));
 	}
