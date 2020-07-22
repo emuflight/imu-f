@@ -50,9 +50,6 @@ volatile axisData_t setPoint;
 volatile int allowFilterInit = 1;
 
 float sharpness;
-float setpointRateX
-float setpointRateY
-float setpointRateZ
 
 void allow_filter_init(void)
 {
@@ -120,42 +117,17 @@ void filter_data(volatile axisData_t *gyroRateData, volatile axisData_t *gyroAcc
 		setPointNew = 0;
 		if (setPoint.x != 0.0f && oldSetPoint.x != setPoint.x)
 		{
-			if (ABS(setPoint.x) > ABS(filteredData->rateData.x))
-			{
-				setpointRateX = ABS(setPoint.x) / ABS(filteredData->rateData.x)
-			}
-			else
-			{
-				setpointRateX = ABS(filteredData->rateData.x) / ABS(setPoint.x)
-			}
-			
-			filterConfig.roll_lpf_hz = CONSTRAIN((float)filterConfig.i_roll_lpf_hz * ABS((1.0f - setpointRateX) * errorMultiplierX), 10.0f, 500.0f);
+			filterConfig.roll_lpf_hz = CONSTRAIN((float)filterConfig.i_roll_lpf_hz * ABS((1.0f - (setPoint.x / filteredData->rateData.x)) * errorMultiplierX), 10.0f, 500.0f);
 			filter_biquad_init(filterConfig.roll_lpf_hz, &(lpfFilterStateRate.x));
 		}
 		if (setPoint.y != 0.0f && oldSetPoint.y != setPoint.y)
 		{
-			if (setPoint.y > filteredData->rateData.y)
-			{
-				setpointRateY = setPoint.y / filteredData->rateData.y
-			}
-			else
-			{
-				setpointRateY = filteredData->rateData.y / setPoint.y
-			}
-			filterConfig.pitch_lpf_hz = CONSTRAIN((float)filterConfig.i_pitch_lpf_hz * ABS((1.0f - setpointRateY) * errorMultiplierY), 10.0f, 500.0f);
+			filterConfig.pitch_lpf_hz = CONSTRAIN((float)filterConfig.i_pitch_lpf_hz * ABS((1.0f - (setPoint.y  / filteredData->rateData.y)) * errorMultiplierY), 10.0f, 500.0f);
 			filter_biquad_init(filterConfig.pitch_lpf_hz, &(lpfFilterStateRate.y));
 		}
 		if (setPoint.z != 0.0f && oldSetPoint.z != setPoint.z)
 		{
-			if (setPoint.z > filteredData->rateData.z)
-			{
-				setpointRateZ = setPoint.z / filteredData->rateData.z
-			}
-			else
-			{
-				setpointRateZ = filteredData->rateData.z / setPoint.z
-			}
-			filterConfig.yaw_lpf_hz = CONSTRAIN((float)filterConfig.i_yaw_lpf_hz * ABS((1.0f - setpointRateZ) * errorMultiplierZ), 10.0f, 500.0f);
+			filterConfig.yaw_lpf_hz = CONSTRAIN((float)filterConfig.i_yaw_lpf_hz * ABS((1.0f - (setPoint.z / filteredData->rateData.z)) * errorMultiplierZ), 10.0f, 500.0f);
 			filter_biquad_init(filterConfig.yaw_lpf_hz, &(lpfFilterStateRate.z));
 		}
 		memcpy((uint32_t *)&oldSetPoint, (uint32_t *)&setPoint, sizeof(axisData_t));
