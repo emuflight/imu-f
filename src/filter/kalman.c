@@ -82,7 +82,7 @@ inline float kalman_process(kalman_t* kalmanState, volatile float input, volatil
     kalmanState->lastX = kalmanState->x;
 
     if (target != 0.0f) {
-        kalmanState->e = ABS(1.0f - (target / kalmanState->lastX));
+        kalmanState->e = fabsf(1.0f - (target / kalmanState->lastX));
     } else {
         kalmanState->e = 1.0f;
     }

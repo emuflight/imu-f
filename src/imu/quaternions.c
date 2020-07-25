@@ -23,11 +23,11 @@ void init_quaternions(void){
 }
 
 void process(volatile quaternion_buffer_t *quatBuffer, uint32_t step) {
-    if (isnan(quatBuffer->vector.x) || 
-        isnan(quatBuffer->vector.y) || 
-        isnan(quatBuffer->vector.z) || 
-        isnan(quatBuffer->accVector.x) || 
-        isnan(quatBuffer->accVector.y) || 
+    if (isnan(quatBuffer->vector.x) ||
+        isnan(quatBuffer->vector.y) ||
+        isnan(quatBuffer->vector.z) ||
+        isnan(quatBuffer->accVector.x) ||
+        isnan(quatBuffer->accVector.y) ||
         isnan(quatBuffer->accVector.z)) {
 		return;
 	}
@@ -40,51 +40,51 @@ void update_quaternions(void)
     {
         case QUAT_PROCESS_BUFFER_0_0:
             process(&quatBufferA, 0);
-            quatState++;      
+            quatState++;
         break;
         case QUAT_PROCESS_BUFFER_0_1:
             process(&quatBufferA, 1);
-            quatState++;      
+            quatState++;
         break;
         case QUAT_PROCESS_BUFFER_0_2:
             process(&quatBufferA, 2);
-            quatState++;      
+            quatState++;
         break;
         case QUAT_PROCESS_BUFFER_0_3:
             process(&quatBufferA, 3);
-            quatState++;      
+            quatState++;
         break;
         case QUAT_PROCESS_BUFFER_0_4:
             process(&quatBufferA, 4);
-            quatState++;      
+            quatState++;
         break;
         case QUAT_PROCESS_BUFFER_0_5:
             process(&quatBufferA, 5);
             quatState = QUAT_DONE_BUFFER_0;
             break;
-        case QUAT_PROCESS_BUFFER_1_0:        
+        case QUAT_PROCESS_BUFFER_1_0:
             process(&quatBufferB, 0);
-            quatState++;      
+            quatState++;
         break;
-        case QUAT_PROCESS_BUFFER_1_1:        
+        case QUAT_PROCESS_BUFFER_1_1:
             process(&quatBufferB, 1);
-            quatState++;      
+            quatState++;
         break;
-        case QUAT_PROCESS_BUFFER_1_2:        
+        case QUAT_PROCESS_BUFFER_1_2:
             process(&quatBufferB, 2);
-            quatState++;      
+            quatState++;
         break;
-        case QUAT_PROCESS_BUFFER_1_3:        
+        case QUAT_PROCESS_BUFFER_1_3:
             process(&quatBufferB, 3);
-            quatState++;      
+            quatState++;
         break;
-        case QUAT_PROCESS_BUFFER_1_4:        
+        case QUAT_PROCESS_BUFFER_1_4:
             process(&quatBufferB, 4);
-            quatState++;      
+            quatState++;
         break;
-        case QUAT_PROCESS_BUFFER_1_5:        
+        case QUAT_PROCESS_BUFFER_1_5:
             process(&quatBufferB, 5);
-            quatState = QUAT_DONE_BUFFER_1;      
+            quatState = QUAT_DONE_BUFFER_1;
         break;
         case QUAT_NO_DATA:
         case QUAT_DONE_BUFFER_0:
@@ -114,7 +114,7 @@ void QuaternionZeroRotation(volatile quaternion_record_t *quaternion)
 void MultiplyQuaternionByQuaternion(volatile quaternion_record_t *qOut, volatile quaternion_record_t *q1, volatile quaternion_record_t *q2)
 {
     qOut->w = q1->w * q2->w - q1->vector.x * q2->vector.x - q1->vector.y * q2->vector.y - q1->vector.z * q2->vector.z;
-	qOut->vector.x = q1->w * q2->vector.x + q1->vector.z * q2->vector.y - q1->vector.y * q2->vector.z + q1->vector.x * q2->w;  
+	  qOut->vector.x = q1->w * q2->vector.x + q1->vector.z * q2->vector.y - q1->vector.y * q2->vector.z + q1->vector.x * q2->w;  
     qOut->vector.y = q1->w * q2->vector.y + q1->vector.x * q2->vector.z + q1->vector.y * q2->w - q1->vector.z * q2->vector.x;
     qOut->vector.z = q1->vector.y * q2->vector.x - q1->vector.x * q2->vector.y + q1->w * q2->vector.z + q1->vector.z * q2->w;
 }

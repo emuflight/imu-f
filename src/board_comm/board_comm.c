@@ -147,9 +147,9 @@ static void run_command(volatile imufCommand_t* command, volatile imufCommand_t*
                 filterConfig.i_roll_q            = (int16_t)(command->param3 >> 16);
                 filterConfig.i_pitch_q           = (int16_t)(command->param3 & 0xFFFF);
                 filterConfig.i_yaw_q             = (int16_t)(command->param4 >> 16);
-                filterConfig.i_roll_lpf_hz       = (int16_t)(command->param4 & 0xFFFF);
-                filterConfig.i_pitch_lpf_hz      = (int16_t)(command->param5 >> 16);
-                filterConfig.i_yaw_lpf_hz        = (int16_t)(command->param5 & 0xFFFF);
+                filterConfig.base_roll_lpf_hz       = (int16_t)(command->param4 & 0xFFFF);
+                filterConfig.base_pitch_lpf_hz      = (int16_t)(command->param5 >> 16);
+                filterConfig.base_yaw_lpf_hz        = (int16_t)(command->param5 & 0xFFFF);
                 filterConfig.ptX                 = (int16_t)(command->param6 >> 16);
                 filterConfig.dynamicType         = (int16_t)(command->param6 & 0xFFFF);
                 if (!filterConfig.dynamicType)

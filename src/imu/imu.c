@@ -34,7 +34,7 @@ static float Atan2fast( float y, float x )
     }
     float atan;
     float z = y/x;
-    if ( ABS( z ) < 1.0f )
+    if ( fabsf( z ) < 1.0f )
     {
         atan = z/(1.0f + 0.28f*z*z);
         if ( x < 0.0f )
@@ -107,7 +107,7 @@ void init_imu(void)
 static void MultiplyQuatAndVector(volatile quaternion_record_t *quatOut, volatile quaternion_record_t *quatIn, volatile vector_record_t *vectorIn)
 {
     quatOut->w = -quatIn->vector.x * vectorIn->x - quatIn->vector.y * vectorIn->y - quatIn->vector.z * vectorIn->z;
-    quatOut->vector.x =  quatIn->w * vectorIn->x + quatIn->vector.z * vectorIn->y - quatIn->vector.y * vectorIn->z;  
+    quatOut->vector.x =  quatIn->w * vectorIn->x + quatIn->vector.z * vectorIn->y - quatIn->vector.y * vectorIn->z;
     quatOut->vector.y =  quatIn->w * vectorIn->y + quatIn->vector.x * vectorIn->z - quatIn->vector.z * vectorIn->x;
     quatOut->vector.z =  quatIn->vector.y * vectorIn->x - quatIn->vector.x * vectorIn->y + quatIn->w * vectorIn->z;
 }
@@ -156,7 +156,7 @@ void update_imu(volatile vector_record_t *gyroVector, volatile vector_record_t *
             QuaternionZeroRotation(&multQuat); //simp
             QuaternionZeroRotation(&tempQuat); //simp
             QuaternionConjugate(&conjQuat, &attitudeFrameQuat); //simp
-            MultiplyQuatAndVector(&multQuat, &conjQuat, accBodyVector); //complex arithmetic 
+            MultiplyQuatAndVector(&multQuat, &conjQuat, accBodyVector); //complex arithmetic
         break;
         case 2:
             MultiplyQuaternionByQuaternion(&tempQuat, &multQuat,  &attitudeFrameQuat);
@@ -172,7 +172,7 @@ void update_imu(volatile vector_record_t *gyroVector, volatile vector_record_t *
         break;
         case 4:
             //apply ACC correction to Gyro Vector with trust modifier
-	        VectorAddVector(gyroVector, &(tempQuat.vector), get_acc_trust(gyroVector) );    
+	        VectorAddVector(gyroVector, &(tempQuat.vector), get_acc_trust(gyroVector) );
         break;
         case 5:
             gyroQuat.vector.x  = DegreesToRadians(gyroVector->x * HALF_GYRO_DT);
