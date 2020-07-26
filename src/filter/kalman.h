@@ -27,9 +27,9 @@ typedef struct variance
     float yVar;
     float zVar;
 
-    float xyCovar;
-    float xzCovar;
-    float yzCovar;
+    float xyCoVar;
+    float xzCoVar;
+    float yzCoVar;
 
     uint32_t windex;
     float xWindow[MAX_WINDOW_SIZE];
