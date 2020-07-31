@@ -76,16 +76,19 @@ inline float kalman_process(kalman_t* kalmanState, volatile float input, volatil
     //this should be close to 0 as we approach the sepoint and really high the futher away we are from the setpoint.
     //update last state
     kalmanState->lastX = kalmanState->x;
-
-    if (target != 0.0f) {
-        kalmanState->e = ABS(1.0f - (target / kalmanState->lastX));
+    
+    if (filterConfig.dynamicQ == 1) {
+        if (target != 0.0f) {
+            kalmanState->e = ABS(1.0f - (target / kalmanState->lastX));
+        } else {
+            kalmanState->e = 1.0f;
+        }
+        //prediction update
+        kalmanState->p = kalmanState->p + (CONSTRAIN(kalmanState->q * kalmanState->e, filterConfig.MinQ * 0.001f, filterConfig.MaxQ * 0.001f));
     } else {
-        kalmanState->e = 1.0f;
+        kalmanState->p = kalmanState->p + kalmanState->q;
     }
-
-    //prediction update
-    kalmanState->p = kalmanState->p + (kalmanState->q * kalmanState->e);
-
+    
     //measurement update
     kalmanState->k = kalmanState->p / (kalmanState->p + kalmanState->r);
     kalmanState->x += kalmanState->k * (input - kalmanState->x);

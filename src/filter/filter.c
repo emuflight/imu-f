@@ -25,6 +25,9 @@ volatile filter_config_t filterConfig =
 	BASE_LPF_HZ,
 	BASE_LPF_HZ,
 	100,
+	1,
+	2000,
+	5000,
 };
 
 // PT1 Low Pass filter

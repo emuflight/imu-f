@@ -31,6 +31,9 @@ typedef struct filter_config
     uint16_t i_pitch_lpf_hz;
     uint16_t i_yaw_lpf_hz;
     uint16_t sharpness;
+    uint16_t dynamicQ;
+    uint16_t MinQ;
+    uint16_t MaxQ;
 } filter_config_t;
 
 extern volatile filter_config_t filterConfig;
