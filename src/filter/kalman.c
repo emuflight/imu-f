@@ -84,7 +84,7 @@ inline float kalman_process(kalman_t* kalmanState, volatile float input, volatil
             kalmanState->e = 1.0f;
         }
         //prediction update
-        kalmanState->p = kalmanState->p + (CONSTRAIN(kalmanState->q * kalmanState->e, filterConfig.MinQ * 0.001f, filterConfig.MaxQ * 0.001f));
+        kalmanState->p = kalmanState->p + (CONSTRAIN(kalmanState->q * kalmanState->e, filterConfig.minQ * 0.001f, filterConfig.maxQ * 0.001f));
     } else {
         kalmanState->p = kalmanState->p + kalmanState->q;
     }
