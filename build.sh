@@ -33,7 +33,7 @@ if [ ! -d "$TOOLCHAIN_DIR" ]; then
 
     # 1c. Download (silent and follow redirects) and pipe directly to tar for extraction
     # 'xjf' is used: 'x' extract, 'j' for bzip2, 'f' for file/stream
-    if ! curl -L -s "$DOWNLOAD_URL" | tar xjf; then
+    if ! curl -L -# "$DOWNLOAD_URL" | tar -xjf -; then
         echo "========================================================================="
         echo "ERROR: Failed to download or extract the ARM toolchain."
         echo "Please check if 'curl' and 'tar' are installed and the URL is still valid."
@@ -53,7 +53,8 @@ echo "Setting up PATH..."
 
 # Export the new PATH variable, using 'pwd' to ensure we get the absolute path
 # to the toolchain's bin directory regardless of where the script is called from.
-export PATH="$PATH:$(pwd)/$TOOLCHAIN_DIR/bin"
+TOOLCHAIN_BIN_PATH="$(pwd)/$TOOLCHAIN_DIR/bin"
+export PATH="$PATH:$TOOLCHAIN_BIN_PATH"
 
 echo "Executing build script with: python make.py -C -T F3"
 
@@ -84,17 +85,11 @@ fi
 # Looks for the line, and prints the third field (the number).
 FIRMWARE_VERSION=$(grep '#define FIRMWARE_VERSION' "$VERSION_FILE" | awk '{print $3}')
 
-# Basic validation for the extracted version.
-# POSIX-compliant check using 'case' to ensure the variable is non-empty and contains only digits.
-case "$FIRMWARE_VERSION" in
-    ''|*[!0-9]*)
-        echo "Error: Could not extract a valid numerical FIRMWARE_VERSION from '$VERSION_FILE'."
-        exit 1
-        ;;
-    *)
-        # Validation passed
-        ;;
-esac
+# Basic validation: ensure extracted version is a non-empty decimal number
+if [ -z "$FIRMWARE_VERSION" ] || ! expr "$FIRMWARE_VERSION" : '^[0-9]\+$' >/dev/null; then
+    echo "Error: Could not extract a valid numerical FIRMWARE_VERSION from '$VERSION_FILE'."
+    exit 1
+fi
 
 echo "Extracted Firmware Version: $FIRMWARE_VERSION"
 
@@ -107,7 +102,12 @@ if [ ! -f "$BUILD_OUTPUT_FILE" ]; then
     exit 1
 fi
 
-# 3e. Copy the binary, preserving modification time, access time, and modes (-p)
+# 3e. Ensure output directory exists for the versioned binary
+if [ ! -d "output" ]; then
+    mkdir -p output
+fi
+
+# 3f. Copy the binary, preserving modification time, access time, and modes (-p)
 echo "Copying '$BUILD_OUTPUT_FILE' to '$DEST_FILE'..."
 if cp -p "$BUILD_OUTPUT_FILE" "$DEST_FILE"; then
     echo "=========================================================="
