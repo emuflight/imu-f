@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Ensure the script runs from the repository root
+if [ ! -f "src/version.h" ]; then
+    echo "Error: This script must be run from the repository root."
+    exit 1
+fi
+
 # --- Configuration ---
 # Expected directory name of the extracted toolchain
 TOOLCHAIN_DIR="gcc-arm-none-eabi-6-2017-q1-update"
