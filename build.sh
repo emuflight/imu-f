@@ -84,11 +84,17 @@ fi
 # Looks for the line, and prints the third field (the number).
 FIRMWARE_VERSION=$(grep '#define FIRMWARE_VERSION' "$VERSION_FILE" | awk '{print $3}')
 
-# Basic validation for the extracted version
-if [ -z "$FIRMWARE_VERSION" ] || ! expr "$FIRMWARE_VERSION" + 1 >/dev/null 2>&1; then
-    echo "Error: Could not extract a valid numerical FIRMWARE_VERSION from '$VERSION_FILE'."
-    exit 1
-fi
+# Basic validation for the extracted version.
+# POSIX-compliant check using 'case' to ensure the variable is non-empty and contains only digits.
+case "$FIRMWARE_VERSION" in
+    ''|*[!0-9]*)
+        echo "Error: Could not extract a valid numerical FIRMWARE_VERSION from '$VERSION_FILE'."
+        exit 1
+        ;;
+    *)
+        # Validation passed
+        ;;
+esac
 
 echo "Extracted Firmware Version: $FIRMWARE_VERSION"
 
