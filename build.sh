@@ -14,8 +14,8 @@ BUILD_OUTPUT_FILE="output/F3.bin"
 
 # --- 1. Conditional Download and Extraction ---
 
-if [ ! -d "$TOOLCHAIN_DIR" ]; then
-    echo "Toolchain directory '$TOOLCHAIN_DIR' not found."
+if [ ! -d "$TOOLCHAIN_DIR" ] || [ ! -f "$TOOLCHAIN_DIR/bin/arm-none-eabi-gcc" ]; then
+    echo "Toolchain directory '$TOOLCHAIN_DIR' or required binary not found."
 
     # 1a. Detect Operating System
     OS=""
@@ -49,7 +49,7 @@ if [ ! -d "$TOOLCHAIN_DIR" ]; then
 
     echo "Download and extraction of $TOOLCHAIN_DIR completed successfully."
 else
-    echo "Toolchain directory '$TOOLCHAIN_DIR' already exists. Skipping download and extraction."
+    echo "Toolchain directory '$TOOLCHAIN_DIR' and required binary found. Skipping download and extraction."
 fi
 
 
