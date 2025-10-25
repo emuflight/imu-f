@@ -89,7 +89,7 @@ fi
 
 # 3b. Extract FIRMWARE_VERSION using grep and awk (highly portable)
 # Looks for the line, and prints the third field (the number).
-FIRMWARE_VERSION=$(grep '#define FIRMWARE_VERSION' "$VERSION_FILE" | awk '{print $3}')
+FIRMWARE_VERSION=$(grep '^[[:space:]]*#define[[:space:]]*FIRMWARE_VERSION' "$VERSION_FILE" | awk '{print $3}')
 
 # Basic validation: ensure extracted version is a non-empty decimal number
 if [ -z "$FIRMWARE_VERSION" ] || ! expr "$FIRMWARE_VERSION" : '^[0-9]\+$' >/dev/null; then
