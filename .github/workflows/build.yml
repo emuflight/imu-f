@@ -21,7 +21,7 @@ jobs:
       run: function curl () { command curl --connect-timeout 30 --retry 10 "$@" ; }
 
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v6
       with:
         fetch-depth: 15
 
@@ -46,7 +46,7 @@ jobs:
         echo "VER=${VER}" >> "$GITHUB_OUTPUT"
 
     - name: Upload artifcats
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v7
       with:
         name: IMUF_${{steps.file_version.outputs.VER}}
         path: output/*.bin
