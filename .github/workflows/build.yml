@@ -33,7 +33,9 @@ jobs:
         release: '6-2017-q1'
 
     - name: Setup Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
 
     - name: Make
       run: ./make.py -T=F3
