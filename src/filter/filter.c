@@ -25,10 +25,6 @@ volatile filter_config_t filterConfig =
 
 // PT1 Low Pass filter
 bool acc_filter_initialized = false;
-typedef struct pt1Filter_s {
-    float state;
-    float k;
-} pt1Filter_t;
 
 pt1Filter_t ax_filter;
 pt1Filter_t ay_filter;

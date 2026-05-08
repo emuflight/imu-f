@@ -8,6 +8,12 @@
 #define DEFAULT_YAW_Q          3000
 #define BASE_LPF_HZ            70.0f
 
+// PT1 Low Pass filter
+typedef struct pt1Filter_s {
+    float state;
+    float k;
+} pt1Filter_t;
+
 typedef enum filterAxisTypedef {
     ROLL = 0,
     PITCH = 1,
@@ -40,5 +46,10 @@ extern volatile axisData_t setPoint;
 extern void allow_filter_init(void);
 extern void filter_init(void);
 extern void filter_data(volatile axisData_t* gyroRateData, volatile axisData_t* gyroAccData, float gyroTempData, filteredData_t* filteredData);
+
+// PT1 filter functions
+extern float pt1FilterGain(uint16_t f_cut, float dT);
+extern void pt1FilterInit(pt1Filter_t *filter, float k, float val);
+extern float pt1FilterApply(pt1Filter_t *filter, float input);
 
 void filter_acc(volatile axisData_t *gyroAccData);

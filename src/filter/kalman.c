@@ -14,6 +14,10 @@ void init_kalman(kalman_t *filter, float q)
     filter->r = 88.0f;           //seeding R at 88.0f
     filter->p = 30.0f;           //seeding P at 30.0f
     filter->e = 1.0f;
+    
+    // Initialize PT1 filter for Kalman gain smoothing
+    // 50 Hz cutoff with 32kHz sample rate (REFRESH_RATE = 1/32000 = 0.00003125s)
+    pt1FilterInit(&filter->kFilter, pt1FilterGain(50, REFRESH_RATE), 0.0f);
 }
 
 void kalman_init(void)
@@ -104,6 +108,7 @@ inline float kalman_process(kalman_t* kalmanState, volatile float input) {
 
   //measurement update
   kalmanState->k = kalmanState->p / (kalmanState->p + 10.0f);
+  kalmanState->k = pt1FilterApply(&kalmanState->kFilter, kalmanState->k);
   kalmanState->x += kalmanState->k * (input - kalmanState->x);
   kalmanState->p = (1.0f - kalmanState->k) * kalmanState->p;
   return kalmanState->x;

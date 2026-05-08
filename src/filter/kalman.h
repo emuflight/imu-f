@@ -20,6 +20,7 @@ typedef struct kalman
     float lastX; //previous state
     float e;     //multiplier or adder to q
     float s;     //changes how dynamic e is
+    pt1Filter_t kFilter;  //PT1 filter for gain smoothing
 } kalman_t;
 
 typedef struct variance
