@@ -2,7 +2,7 @@
 #include "includes.h"
 
 // Each enum value equals the SPI DMA buffer size in bytes for that mode.
-// This dual-purpose design is intentional: the mode identifier IS the payload byte count.
+// The mode identifier IS the payload byte count — this is intentional by design.
 typedef enum gyroToBoardCommMode
 {
     GTBCM_SETUP                  = 53, //max number; full imufCommand_t setup frame
@@ -12,6 +12,13 @@ typedef enum gyroToBoardCommMode
     GTBCM_GYRO_ACC_FILTER_F      = 32, //gyro, filtered, acc, 3*4, 3*4, 4 byte crc
     GTBCM_GYRO_ACC_QUAT_FILTER_F = 48, //gyro, filtered, temp, filtered, acc, quaternions, filtered, 3*4, 3*4, 4*4, 1*4, 4 byte crc
 } gyroToBoardCommMode_t;
+
+// Returns the SPI DMA buffer size in bytes for a given mode.
+// Exploits the intentional design that each enum value equals its payload byte count.
+static inline uint32_t bufferSizeForMode(gyroToBoardCommMode_t mode)
+{
+    return (uint32_t)mode;
+}
 
 typedef struct boardCommState {
    uint32_t commMode;

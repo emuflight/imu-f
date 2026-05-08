@@ -97,7 +97,7 @@ void board_comm_spi_callback_function(void)
     {
         bcTx.command = 0;
         //set flight mode now
-        boardCommState.bufferSize = filterMode; // enum value equals DMA buffer byte size by design
+        boardCommState.bufferSize = bufferSizeForMode(filterMode);
         boardCommState.commMode   = filterMode;
         allow_filter_init();
         reset_matrix(); //reset oreintation matrix in case it's been changes
