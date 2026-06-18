@@ -7,14 +7,14 @@ typedef struct axisDataInt
     uint32_t x;
     uint32_t y;
     uint32_t z;
-} __attribute__((__packed__)) axisDataInt_t;
+} axisDataInt_t;
 
 typedef struct axisData
 {
     volatile float x;
     volatile float y;
     volatile float z;
-} __attribute__((__packed__)) axisData_t;
+} axisData_t;
 
 typedef struct filteredData
 {
@@ -24,7 +24,7 @@ typedef struct filteredData
     float quaternion[4]; //4
     uint32_t crc;        //1
     uint32_t tail;       //1
-} __attribute__((__packed__)) filteredData_t;
+} filteredData_t;
 
 typedef struct gyro_settings_config {  //unpacked, aligned 4
     uint32_t rate;
@@ -32,7 +32,7 @@ typedef struct gyro_settings_config {  //unpacked, aligned 4
     int32_t smallX;
     int32_t smallY;
     int32_t smallZ;
-} __attribute__((__packed__)) gyro_settings_config_t;
+} gyro_settings_config_t;
 
 extern volatile gyro_settings_config_t gyroSettingsConfig;
 

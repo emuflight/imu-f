@@ -8,38 +8,36 @@ fi
 
 # --- Configuration ---
 # Expected directory name of the extracted toolchain
-TOOLCHAIN_DIR="gcc-arm-none-eabi-6-2017-q1-update"
 VERSION_FILE="src/version.h"
 BUILD_OUTPUT_FILE="output/F3.bin"
 
 # --- 1. Conditional Download and Extraction ---
 
+# 1a. Detect Operating System
+case $(uname) in
+    "Linux" )
+        TOOLCHAIN_DIR="arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi"
+        DOWNLOAD_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz"
+        ;;
+    "Darwin" )
+        DARWIN_ARCH=$(uname -m)
+        TOOLCHAIN_DIR="arm-gnu-toolchain-13.3.rel1-darwin-${DARWIN_ARCH}-arm-none-eabi"
+        DOWNLOAD_URL="https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-darwin-${DARWIN_ARCH}-arm-none-eabi.tar.xz"
+        ;;
+    * )
+        echo "Error: Unsupported operating system ($(uname)). Exiting."
+        exit 1
+        ;;
+esac
+
 if [ ! -d "$TOOLCHAIN_DIR" ] || [ ! -f "$TOOLCHAIN_DIR/bin/arm-none-eabi-gcc" ]; then
     echo "Toolchain directory '$TOOLCHAIN_DIR' or required binary not found."
 
-    # 1a. Detect Operating System
-    OS=""
-    case $(uname) in
-        "Linux" )
-            OS="linux"
-            ;;
-        "Darwin" )
-            OS="mac"
-            ;;
-        * )
-            echo "Error: Unsupported operating system ($(uname)). Exiting."
-            exit 1
-            ;;
-    esac
+    echo "Detected OS: $(uname). Starting download..."
 
-    echo "Detected OS: $OS. Starting download..."
-
-    # 1b. Construct Download URL
-    DOWNLOAD_URL="https://developer.arm.com/-/media/Files/downloads/gnu-rm/6_1-2017q1/gcc-arm-none-eabi-6-2017-q1-update-${OS}.tar.bz2"
-
-    # 1c. Download (silent and follow redirects) and pipe directly to tar for extraction
-    # 'xjf' is used: 'x' extract, 'j' for bzip2, 'f' for file/stream
-    if ! curl -L -# "$DOWNLOAD_URL" | tar -xjf -; then
+    # 1b. Download (silent and follow redirects) and pipe directly to tar for extraction
+    # 'xJf' is used: 'x' extract, 'J' for xz, 'f' for file/stream
+    if ! curl -L -# "$DOWNLOAD_URL" | tar -xJf -; then
         echo "========================================================================="
         echo "ERROR: Failed to download or extract the ARM toolchain."
         echo "Please check if 'curl' and 'tar' are installed and the URL is still valid."
@@ -62,10 +60,10 @@ echo "Setting up PATH..."
 TOOLCHAIN_BIN_PATH="$(pwd)/$TOOLCHAIN_DIR/bin"
 export PATH="$PATH:$TOOLCHAIN_BIN_PATH"
 
-echo "Executing build script with: python make.py -C -T F3"
+echo "Executing build script with: python3 make.py -C -T F3"
 
 # Execute the python build script and check the result immediately
-if ! python make.py -C -T F3; then
+if ! python3 make.py -C -T F3; then
     echo "=========================================================="
     echo "❌ Build failed. Check the output above for errors."
     echo "=========================================================="

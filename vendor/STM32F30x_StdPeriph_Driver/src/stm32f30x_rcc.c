@@ -1386,8 +1386,10 @@ void RCC_TIMCLKConfig(uint32_t RCC_TIMCLK)
       break;
     case 0x05:
       RCC->CFGR3 &= ~RCC_CFGR3_TIM20SW;
+      __attribute__((fallthrough));
     case 0x06:
       RCC->CFGR3 &= ~RCC_CFGR3_TIM2SW;
+      __attribute__((fallthrough));
     case 0x07:
       RCC->CFGR3 &= ~RCC_CFGR3_TIM3SW;
       break;

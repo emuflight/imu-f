@@ -21,8 +21,6 @@ volatile int loopDivider = 1;
 float gyroTempData;
 filteredData_t filteredData;
 
-DMA_InitTypeDef gyroDmaInitStruct;
-
 #pragma GCC push_options
 #pragma GCC optimize ("Os")
 
@@ -384,6 +382,7 @@ void increment_acc_tracker(void)
         case 33:
             //reset acc tracker
             accTracker = 1; //fallthru for 33, not done on 17
+            __attribute__((fallthrough));
         case 17:
             //update quaternions, these were calculated in imu.c
             filteredData.quaternion[0] = attitudeFrameQuat.w;
@@ -406,7 +405,6 @@ void fire_spi_send_ready(void)
 
     static volatile uint8_t sendBuffer[60];
     volatile uint8_t*  memptr8  = (uint8_t*)&filteredData.rateData;
-    volatile uint32_t* memptr32 = (uint32_t*)&filteredData.rateData;
 
     if (boardCommState.commMode != GTBCM_SETUP)
     {
