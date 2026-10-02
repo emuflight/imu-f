@@ -6,4 +6,5 @@ redirection.junk
 kalman/test
 .exe
 gcc-arm*
+arm-gnu-toolchain*
 tmp/

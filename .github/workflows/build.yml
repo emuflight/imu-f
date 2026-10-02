@@ -10,45 +10,70 @@ on:
     types: [build]
 
 name: Build IMU-F
+
 jobs:
-  build:
-    timeout-minutes: 15
+  test:
     runs-on: ubuntu-latest
     steps:
-
-    # curl, by default, may timeout easily
-    - name: curl fix
-      run: function curl () { command curl --connect-timeout 30 --retry 10 "$@" ; }
 
     - name: Checkout
       uses: actions/checkout@v6
       with:
         fetch-depth: 15
 
-    - name: ARM SDK
-      uses: fiam/arm-none-eabi-gcc@master
+    - name: Kalman simulation test
+      run: |
+        cd test_kalman
+        gcc -o /tmp/kalman_test libfixmath/fix16.c test.c -O0 -lpthread
+        /tmp/kalman_test
+
+  build:
+    needs: test
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v6
       with:
-        release: '6-2017-q1'
+        fetch-depth: 15
 
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.x'
 
-    - name: Make
-      run: ./make.py -T=F3
+    - name: Restore ARM toolchain cache
+      id: cache-toolchain
+      uses: actions/cache@v5
+      with:
+        path: arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi
+        key: arm-gnu-toolchain-13.3.rel1-linux-x86_64
 
-    - name: Rename Binary
-      id: file_version
+    - name: Download ARM toolchain
+      if: steps.cache-toolchain.outputs.cache-hit != 'true'
       run: |
-        VER=$(grep FIRMWARE_VERSION ./src/version.h  | awk '{print $3}')
+        curl --connect-timeout 30 --retry 10 -L \
+          "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz" \
+          | tar -xJf -
+
+    - name: Add toolchain to PATH
+      run: echo "$(pwd)/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
+
+    - name: Build firmware
+      run: python3 make.py -C -T F3
+
+    - name: Prepare artifact
+      id: artifact
+      run: |
+        VER=$(grep FIRMWARE_VERSION ./src/version.h | awk '{print $3}')
         mv output/F3.bin output/IMUF_${VER}.bin
         echo "VER=${VER}" >> "$GITHUB_OUTPUT"
 
-    - name: Upload artifcats
+    - name: Upload artifacts
       uses: actions/upload-artifact@v7
       with:
-        name: IMUF_${{steps.file_version.outputs.VER}}
+        name: IMUF_${{steps.artifact.outputs.VER}}
         path: output/*.bin
 
   release:
@@ -58,10 +83,10 @@ jobs:
     steps:
 
     - name: Download artifacts
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
 
     - name: Create Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         draft: true
         generate_release_notes: true

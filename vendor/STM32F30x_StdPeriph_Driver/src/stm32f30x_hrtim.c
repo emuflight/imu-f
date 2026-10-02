@@ -2837,6 +2837,7 @@ void HRTIM_ADCTriggerConfig(HRTIM_TypeDef * HRTIMx,
       
       /* Set the ADC trigger 3 source */
       HRTIMx->HRTIM_COMMON.ADC3R = pADCTriggerCfg->Trigger;
+      __attribute__((fallthrough));
     }
     case HRTIM_ADCTRIGGER_4:
     {

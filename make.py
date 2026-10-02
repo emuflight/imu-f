@@ -44,8 +44,6 @@ def fix_path(path_string):
     return path_string
 
 
-
-
 this_dir = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_PATH = os.path.join(this_dir, "output")
 LIBRARY_PATH = os.path.join(this_dir, "vendor")
@@ -155,12 +153,12 @@ def configure_target(TARGET):
     FLASH_END    = str(0x08008000)
 
     #extra D flags
-    EXTRA_DEF_FLAGS = " -std=c99 -D__FPU_USED=1 -D__FPU_PRESENT=1 -DUSE_STDPERIPH_DRIVER"
+    EXTRA_DEF_FLAGS = " -std=c99 -D__FPU_PRESENT=1 -DUSE_STDPERIPH_DRIVER"
 
     #extra source files to include not in the below dirs
     SOURCE_FILES = [
         this_dir + "/assembly/startup/startup_stm32f303xc.s",
-        LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/TransformFunctions/arm_bitreversal2.S"
+        LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/TransformFunctions/arm_bitreversal2.S"
     ]
 
     #All include dirs
@@ -175,7 +173,9 @@ def configure_target(TARGET):
         os.path.join("src", "filter"),
         LIBRARY_PATH + "/CMSIS_std/Device/ST/STM32F30x/Include",
         LIBRARY_PATH + "/STM32F30x_StdPeriph_Driver/inc",
-        LIBRARY_PATH + "/CMSIS_std/Include"
+        LIBRARY_PATH + "/CMSIS_5/CMSIS/Core/Include",
+        LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Include",
+        LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/PrivateInclude"
     ]
     #source dirs for all flie inclusion
     SOURCE_DIRS = [
@@ -195,16 +195,17 @@ def configure_target(TARGET):
         SOURCE_DIRS.append(os.path.join("src", "imu"))
         SOURCE_DIRS.append(os.path.join("src", "gyro"))
         SOURCE_DIRS.append(os.path.join("src", "filter"))
-        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/CommonTables/arm_common_tables.c")
-        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/FastMathFunctions/arm_cos_f32.c")
-        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c")
-        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/BasicMathFunctions/arm_mult_f32.c")
-        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/TransformFunctions/arm_rfft_fast_f32.c")
-        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/TransformFunctions/arm_cfft_f32.c")
-        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/TransformFunctions/arm_cfft_q31.c")
-        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/TransformFunctions/arm_rfft_fast_init_f32.c")
-        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/TransformFunctions/arm_cfft_radix8_f32.c")
-        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_std/DSP_Lib/Source/ComplexMathFunctions/arm_cmplx_mag_f32.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/CommonTables/arm_common_tables.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/CommonTables/arm_const_structs.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/FastMathFunctions/arm_cos_f32.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/FastMathFunctions/arm_sin_f32.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/BasicMathFunctions/arm_mult_f32.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/TransformFunctions/arm_rfft_fast_f32.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/TransformFunctions/arm_cfft_f32.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/TransformFunctions/arm_cfft_q31.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/TransformFunctions/arm_rfft_fast_init_f32.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/TransformFunctions/arm_cfft_radix8_f32.c")
+        SOURCE_FILES.append(LIBRARY_PATH + "/CMSIS_5/CMSIS/DSP/Source/ComplexMathFunctions/arm_cmplx_mag_f32.c")
     else:
         print("ERROR - Unknown Project")
         exit(1)
